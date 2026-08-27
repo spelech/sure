@@ -598,6 +598,9 @@ class Family::DataImporter
           notes: data["notes"],
           excluded: data["excluded"] || false
         )
+        entry.external_id = data["external_id"] || old_id
+        transaction.extra = data["extra"] if data["extra"].present?
+
         if @import_session
           entry.external_id = session_entry_external_id("Transaction", old_id)
           entry.source = session_entry_source
