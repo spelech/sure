@@ -27,11 +27,11 @@ fi
 echo "--> Checking Extension Files..."
 check_file "config/routes/forensics.rb"
 check_file "config/initializers/forensics.rb"
-check_file "app/extensions/forensics/services/money_flow_builder.rb"
-check_file "app/extensions/forensics/services/pivot_table_builder.rb"
-check_file "app/extensions/forensics/services/temporal_heatmap_builder.rb"
-check_file "app/extensions/forensics/services/paystub_verifier.rb"
-check_file "app/extensions/forensics/controllers/forensic_reports_controller.rb"
+check_file "app/services/forensics/money_flow_builder.rb"
+check_file "app/services/forensics/pivot_table_builder.rb"
+check_file "app/services/forensics/temporal_heatmap_builder.rb"
+check_file "app/services/forensics/paystub_verifier.rb"
+check_file "app/controllers/forensic_reports_controller.rb"
 check_file "app/views/reports/forensics/_money_flow.html.erb"
 check_file "app/views/reports/forensics/_pivot_analysis.html.erb"
 check_file "app/views/reports/forensics/_temporal_heatmap.html.erb"
@@ -40,7 +40,7 @@ check_file "app/javascript/controllers/forensics/pivot_table_controller.js"
 check_file "app/javascript/controllers/forensics/heatmap_controller.js"
 
 echo "--> Checking Ruby Syntax across Extensions..."
-for f in $(find app/extensions/forensics test/extensions/forensics config/routes/forensics.rb config/initializers/forensics.rb -name "*.rb"); do
+for f in $(find app/services/forensics test/extensions/forensics app/controllers/forensic_reports_controller.rb config/routes/forensics.rb config/initializers/forensics.rb -name "*.rb"); do
   if docker run --rm -v "$(pwd):/rails" -w /rails ghcr.io/we-promise/sure:stable ruby -c "$f" >/dev/null 2>&1; then
     echo "  [PASS] Syntax OK: $f"
   else
