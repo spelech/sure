@@ -843,6 +843,8 @@ Rails.application.routes.draw do
     end
   end
 
+  draw(:forensics) if File.exist?(Rails.root.join("config/routes/forensics.rb"))
+
   # Defines the root path route ("/")
   root "pages#dashboard"
 end
