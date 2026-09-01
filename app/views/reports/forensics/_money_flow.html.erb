@@ -1,0 +1,23 @@
+<%# locals: (flow_data:) %>
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-sm font-medium text-primary uppercase tracking-wider"><%= t("reports.forensics.money_flow.title", default: "Forensic Money Flow") %></h3>
+      <p class="text-xs text-secondary"><%= t("reports.forensics.money_flow.subtitle", default: "Multi-tier ledger mapping: Income → Accounts → Expense Categories → Top Merchants") %></p>
+    </div>
+  </div>
+
+  <% if flow_data[:links].present? %>
+    <div class="w-full h-[550px] bg-surface-inset rounded-xl p-4 border border-primary relative"
+         data-controller="sankey-chart"
+         data-sankey-chart-data-value="<%= flow_data.to_json %>"
+         data-sankey-chart-currency-symbol-value="<%= flow_data[:currency_symbol] %>">
+      <div data-sankey-chart-target="chart" class="w-full h-full"></div>
+    </div>
+  <% else %>
+    <div class="h-48 flex flex-col items-center justify-center bg-surface-inset rounded-xl text-secondary">
+      <%= icon("activity", size: "lg", class: "text-subdued mb-2") %>
+      <p class="text-sm font-medium text-primary"><%= t("reports.forensics.no_data", default: "No flow data in selected date range") %></p>
+    </div>
+  <% end %>
+</div>

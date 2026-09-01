@@ -1,0 +1,120 @@
+<%# locals: (audit_data:) %>
+<%
+  audit_data ||= {}
+  currency_sym = audit_data[:currency_symbol] || "$"
+  payrolls = audit_data[:payrolls] || []
+  total_inflow = audit_data[:total_inflow] || 0.0
+  payroll_count = audit_data[:payroll_count] || 0
+  avg_paycheck = audit_data[:avg_paycheck] || 0.0
+  accounts_count = audit_data[:accounts_count] || 0
+%>
+
+<div id="forensic-paystub-audit" class="space-y-4">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-sm font-medium text-primary uppercase tracking-wider"><%= t("reports.forensics.paystub_audit.title", default: "Paystub & Income Inflow Audit") %></h3>
+      <p class="text-xs text-secondary"><%= t("reports.forensics.paystub_audit.subtitle", default: "Verified payroll deposits and account destination tracking") %></p>
+    </div>
+  </div>
+
+  <!-- 4 KPI Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Card 1: Total Verified Income -->
+    <div class="bg-container rounded-xl shadow-border-xs p-4 border border-primary">
+      <div class="flex items-center gap-2 mb-2">
+        <%= icon("arrow-down-left", size: "sm", class: "text-success") %>
+        <h4 class="text-xs font-medium text-secondary"><%= t("reports.forensics.paystub_audit.total_verified_income", default: "Total Verified Income") %></h4>
+      </div>
+      <p class="text-2xl font-mono font-bold text-success privacy-sensitive">
+        <%= currency_sym %><%= number_with_precision(total_inflow, precision: 2, delimiter: ",") %>
+      </p>
+    </div>
+
+    <!-- Card 2: Payroll Deposits Count -->
+    <div class="bg-container rounded-xl shadow-border-xs p-4 border border-primary">
+      <div class="flex items-center gap-2 mb-2">
+        <%= icon("calendar-check", size: "sm", class: "text-secondary") %>
+        <h4 class="text-xs font-medium text-secondary"><%= t("reports.forensics.paystub_audit.payroll_count", default: "Payroll Deposits Count") %></h4>
+      </div>
+      <p class="text-2xl font-mono font-bold text-primary">
+        <%= payroll_count %>
+      </p>
+    </div>
+
+    <!-- Card 3: Average Paycheck Amount -->
+    <div class="bg-container rounded-xl shadow-border-xs p-4 border border-primary">
+      <div class="flex items-center gap-2 mb-2">
+        <%= icon("badge-dollar-sign", size: "sm", class: "text-secondary") %>
+        <h4 class="text-xs font-medium text-secondary"><%= t("reports.forensics.paystub_audit.avg_paycheck", default: "Average Paycheck Amount") %></h4>
+      </div>
+      <p class="text-2xl font-mono font-bold text-primary privacy-sensitive">
+        <%= currency_sym %><%= number_with_precision(avg_paycheck, precision: 2, delimiter: ",") %>
+      </p>
+    </div>
+
+    <!-- Card 4: Receiving Bank Accounts -->
+    <div class="bg-container rounded-xl shadow-border-xs p-4 border border-primary">
+      <div class="flex items-center gap-2 mb-2">
+        <%= icon("building-2", size: "sm", class: "text-secondary") %>
+        <h4 class="text-xs font-medium text-secondary"><%= t("reports.forensics.paystub_audit.accounts_count", default: "Receiving Bank Accounts") %></h4>
+      </div>
+      <p class="text-2xl font-mono font-bold text-primary">
+        <%= accounts_count %>
+      </p>
+    </div>
+  </div>
+
+  <% if payrolls.present? %>
+    <!-- Table -->
+    <div class="overflow-x-auto rounded-xl border border-primary bg-container">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-surface-inset text-secondary uppercase font-semibold text-[10px] tracking-wider border-b border-primary select-none">
+          <tr>
+            <th class="py-3 px-4"><%= t("reports.forensics.paystub_audit.columns.date", default: "Date") %></th>
+            <th class="py-3 px-4"><%= t("reports.forensics.paystub_audit.columns.employer", default: "Employer / Income Source") %></th>
+            <th class="py-3 px-4"><%= t("reports.forensics.paystub_audit.columns.account", default: "Receiving Account") %></th>
+            <th class="py-3 px-4 text-center"><%= t("reports.forensics.paystub_audit.columns.status", default: "Forensic Verification Status") %></th>
+            <th class="py-3 px-4 text-right"><%= t("reports.forensics.paystub_audit.columns.amount", default: "Inflow Amount") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-primary/10">
+          <% payrolls.each do |row| %>
+            <tr class="hover:bg-surface-inset/50 transition-colors">
+              <td class="py-3 px-4 font-mono text-secondary whitespace-nowrap">
+                <%= row[:date].respond_to?(:strftime) ? row[:date].strftime("%Y-%m-%d") : row[:date] %>
+              </td>
+              <td class="py-3 px-4 font-medium text-primary">
+                <%= row[:employer] %>
+              </td>
+              <td class="py-3 px-4">
+                <div class="text-primary flex items-center gap-2">
+                  <%= icon("wallet", size: "xs", class: "text-secondary") %>
+                  <span><%= row[:account_name] %></span>
+                  <% if row[:account_type].present? %>
+                    <span class="text-[10px] text-subdued">(<%= row[:account_type] %>)</span>
+                  <% end %>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center">
+                <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1">
+                  <%= icon("check-circle", size: "xs") %>
+                  <%= t("reports.forensics.paystub_audit.verified", default: "Verified") %>
+                </span>
+              </td>
+              <td class="py-3 px-4 font-mono font-bold text-success text-right whitespace-nowrap privacy-sensitive">
+                +<%= currency_sym %><%= number_with_precision(row[:amount], precision: 2, delimiter: ",") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="h-48 flex flex-col items-center justify-center bg-surface-inset rounded-xl text-secondary border border-primary">
+      <%= icon("receipt", size: "lg", class: "text-subdued mb-2") %>
+      <p class="text-sm font-medium text-primary"><%= t("reports.forensics.paystub_audit.no_data", default: "No payroll or income inflows found in selected date range") %></p>
+      <p class="text-xs text-subdued mt-1"><%= t("reports.forensics.paystub_audit.no_data_hint", default: "Ensure income transactions are categorized under Income/Payroll or contain payroll references.") %></p>
+    </div>
+  <% end %>
+</div>

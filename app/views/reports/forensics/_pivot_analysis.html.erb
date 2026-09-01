@@ -1,0 +1,48 @@
+<%# locals: (pivot_data:) %>
+<div class="space-y-4" data-controller="forensics--pivot-table">
+  <script type="application/json" data-forensics--pivot-table-target="dataStore">
+    <%= pivot_data.to_json.html_safe %>
+  </script>
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h3 class="text-sm font-medium text-primary uppercase tracking-wider"><%= t("reports.forensics.pivot.title", default: "Dynamic Spend Pivot Table") %></h3>
+      <p class="text-xs text-secondary"><%= t("reports.forensics.pivot.subtitle", default: "Slice expenditures across Category, Merchant, Month, and Account dimensions") %></p>
+    </div>
+
+    <div class="flex items-center gap-1 bg-surface-inset p-1 rounded-lg border border-primary">
+      <button type="button" data-forensics--pivot-table-target="dimensionBtn" data-dimension="categories" data-action="click->forensics--pivot-table#switchDimension" class="px-3 py-1 rounded text-xs font-medium bg-primary text-container transition-all">Category</button>
+      <button type="button" data-forensics--pivot-table-target="dimensionBtn" data-dimension="merchants" data-action="click->forensics--pivot-table#switchDimension" class="px-3 py-1 rounded text-xs font-medium text-secondary hover:text-primary transition-all">Merchant</button>
+      <button type="button" data-forensics--pivot-table-target="dimensionBtn" data-dimension="months" data-action="click->forensics--pivot-table#switchDimension" class="px-3 py-1 rounded text-xs font-medium text-secondary hover:text-primary transition-all">Month</button>
+      <button type="button" data-forensics--pivot-table-target="dimensionBtn" data-dimension="accounts" data-action="click->forensics--pivot-table#switchDimension" class="px-3 py-1 rounded text-xs font-medium text-secondary hover:text-primary transition-all">Account</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto rounded-xl border border-primary bg-container">
+    <table class="w-full text-left text-xs">
+      <thead class="bg-surface-inset text-secondary uppercase font-semibold text-[10px] tracking-wider border-b border-primary select-none">
+        <tr>
+          <th class="py-3 px-4 cursor-pointer hover:text-primary transition-colors" data-sort="key" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center gap-1">Dimension Item <span data-sort-indicator="key">↕</span></span>
+          </th>
+          <th class="py-3 px-4 text-center cursor-pointer hover:text-primary transition-colors" data-sort="count" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center justify-center gap-1">Count <span data-sort-indicator="count">↕</span></span>
+          </th>
+          <th class="py-3 px-4 text-right cursor-pointer hover:text-primary transition-colors" data-sort="avg" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center justify-end gap-1">Average <span data-sort-indicator="avg">↕</span></span>
+          </th>
+          <th class="py-3 px-4 text-right cursor-pointer hover:text-primary transition-colors" data-sort="max" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center justify-end gap-1">Max Tx <span data-sort-indicator="max">↕</span></span>
+          </th>
+          <th class="py-3 px-4 text-right cursor-pointer hover:text-primary transition-colors" data-sort="total" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center justify-end gap-1">Total Outflow <span data-sort-indicator="total">↓</span></span>
+          </th>
+          <th class="py-3 px-4 text-right cursor-pointer hover:text-primary transition-colors" data-sort="percentage" data-action="click->forensics--pivot-table#sortBy">
+            <span class="inline-flex items-center justify-end gap-1">% Share <span data-sort-indicator="percentage">↕</span></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody data-forensics--pivot-table-target="tableBody" class="divide-y divide-primary/10"></tbody>
+    </table>
+  </div>
+</div>

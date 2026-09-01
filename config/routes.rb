@@ -885,6 +885,8 @@ Rails.application.routes.draw do
     resource :system_health, only: :show, controller: "system_health"
   end
 
+  draw(:forensics) if File.exist?(Rails.root.join("config/routes/forensics.rb"))
+
   # Defines the root path route ("/")
   root "pages#dashboard"
 end
