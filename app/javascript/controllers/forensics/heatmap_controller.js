@@ -7,10 +7,10 @@ export default class extends Controller {
     this.selectedMerchant = "all";
 
     try {
-      this.data = JSON.parse(this.dataStoreTarget.textContent || "{}");
+      this.payload = JSON.parse(this.dataStoreTarget.textContent || "{}");
     } catch (e) {
       console.error("Failed to parse temporal heatmap data:", e);
-      this.data = { days: [], top_merchants: [], total_year_spend: 0.0, currency_symbol: "$" };
+      this.payload = { days: [], top_merchants: [], total_year_spend: 0.0, currency_symbol: "$" };
     }
 
     this.populateMerchantSelect();
@@ -20,8 +20,8 @@ export default class extends Controller {
   populateMerchantSelect() {
     if (!this.hasMerchantSelectTarget) return;
 
-    const merchants = this.data.top_merchants || [];
-    const currency = this.data.currency_symbol || "$";
+    const merchants = this.payload.top_merchants || [];
+    const currency = this.payload.currency_symbol || "$";
 
     // Keep the "all" option and append top merchants if not already present
     this.merchantSelectTarget.innerHTML = `
@@ -63,11 +63,11 @@ export default class extends Controller {
   }
 
   render() {
-    const rawDays = this.data.days || [];
-    const currency = this.data.currency_symbol || "$";
+    const rawDays = this.payload.days || [];
+    const currency = this.payload.currency_symbol || "$";
     const selectedMerchantObj = this.selectedMerchant === "all"
       ? null
-      : (this.data.top_merchants || []).find(m => (m.id === this.selectedMerchant || m.name === this.selectedMerchant));
+      : (this.payload.top_merchants || []).find(m => (m.id === this.selectedMerchant || m.name === this.selectedMerchant));
 
     // Calculate effective day amounts based on active filter
     let totalSpend = 0.0;
@@ -293,7 +293,7 @@ export default class extends Controller {
     const date = el.dataset.date;
     const total = Number(el.dataset.total || 0);
     const count = Number(el.dataset.count || 0);
-    const currency = this.data.currency_symbol || "$";
+    const currency = this.payload.currency_symbol || "$";
 
     if (!date || !this.hasTooltipTarget) return;
 

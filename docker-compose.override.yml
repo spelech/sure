@@ -1,0 +1,11 @@
+services:
+  web:
+    image: sure:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+  worker:
+    image: sure:local
+    build:
+      context: .
+      dockerfile: Dockerfile
