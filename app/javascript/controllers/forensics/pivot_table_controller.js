@@ -9,10 +9,10 @@ export default class extends Controller {
     this.sortAsc = false;
 
     try {
-      this.data = JSON.parse(this.dataStoreTarget.textContent || "{}");
+      this.payload = JSON.parse(this.dataStoreTarget.textContent || "{}");
     } catch (e) {
       console.error("Failed to parse pivot table data:", e);
-      this.data = {};
+      this.payload = {};
     }
 
     this.updateSortIndicators();
@@ -71,8 +71,8 @@ export default class extends Controller {
   }
 
   render() {
-    const rows = [...(this.data[this.currentDimension] || [])];
-    const currencySymbol = this.data.currency_symbol || "$";
+    const rows = [...(this.payload[this.currentDimension] || [])];
+    const currencySymbol = this.payload.currency_symbol || "$";
 
     if (rows.length === 0) {
       this.tableBodyTarget.innerHTML = `
