@@ -1,0 +1,17 @@
+---
+en:
+  reports:
+    forensics:
+      money_flow:
+        title: "Forensic Money Flow (Sankey)"
+        subtitle: "Multi-tier ledger mapping: Income → Accounts → Expense Categories → Top Merchants"
+      pivot:
+        title: "Dynamic Spend Pivot Table"
+        subtitle: "Slice expenditures across Category, Merchant, Month, and Account dimensions"
+      heatmap:
+        title: "Temporal Spending Heatmap"
+        subtitle: "Daily outflow intensity and concentration over time"
+      paystub_audit:
+        title: "Paystub Inflow & Withholding Audit"
+        subtitle: "Forensic verification of gross pay, taxes, and benefit withholdings vs account deposits"
+      no_data: "No data available in selected date range"
