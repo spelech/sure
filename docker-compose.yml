@@ -78,6 +78,7 @@ services:
     volumes:
       - app-storage:/rails/storage
       - /drives/nfs/fins:/drives/nfs/fins:ro
+      - /drives/nfs/finance:/drives/nfs/finance:ro
     ports:
       - ${PORT:-3000}:3000
       # To also publish on IPv6 (dual-stack), uncomment the line below AND
@@ -104,6 +105,7 @@ services:
     command: bundle exec sidekiq
     volumes:
       - app-storage:/rails/storage
+      - /drives/nfs/finance:/drives/nfs/finance:ro
     restart: unless-stopped
     depends_on:
       db:

@@ -72,9 +72,14 @@ paystubs.each do |p|
     stats[:already_split] += 1
     if p["sourceFile"] && File.exist?(p["sourceFile"])
       fname = File.basename(p["sourceFile"])
-      unless existing_entry.receipts.any? { |r| r.filename.to_s == fname }
-        existing_entry.receipts.attach(io: File.open(p["sourceFile"]), filename: fname, content_type: "application/pdf")
-        stats[:receipts_attached] += 1
+      tx_obj = existing_entry.entryable
+      if tx_obj.is_a?(Transaction)
+        unless tx_obj.attachments.any? { |r| r.filename.to_s == fname }
+          File.open(p["sourceFile"]) do |f|
+            tx_obj.attachments.attach(io: f, filename: fname, content_type: "application/pdf")
+          end
+          stats[:receipts_attached] += 1
+        end
       end
     end
     next
@@ -136,9 +141,14 @@ paystubs.each do |p|
 
   if entry_for_receipt && p["sourceFile"] && File.exist?(p["sourceFile"])
     fname = File.basename(p["sourceFile"])
-    unless entry_for_receipt.receipts.any? { |r| r.filename.to_s == fname }
-      entry_for_receipt.receipts.attach(io: File.open(p["sourceFile"]), filename: fname, content_type: "application/pdf")
-      stats[:receipts_attached] += 1
+    tx_obj = entry_for_receipt.entryable
+    if tx_obj.is_a?(Transaction)
+      unless tx_obj.attachments.any? { |r| r.filename.to_s == fname }
+        File.open(p["sourceFile"]) do |f|
+          tx_obj.attachments.attach(io: f, filename: fname, content_type: "application/pdf")
+        end
+        stats[:receipts_attached] += 1
+      end
     end
   end
 end
