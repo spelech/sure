@@ -10,13 +10,14 @@ end
 
 rules_data = JSON.parse(raw_input)
 
-family = Family.first
+family = Family.find_by(name: "823 Spring Cove") || Family.first
 abort("No family found in database") unless family
 
 puts "Syncing #{rules_data.size} rule(s) for family #{family.id}..."
 
 synced = 0
 total_matches = 0
+total_applied = 0
 
 ActiveRecord::Base.transaction do
   rules_data.each do |r|
@@ -61,7 +62,7 @@ ActiveRecord::Base.transaction do
     tags = r["targetTags"]
     tags = JSON.parse(tags) if tags.is_a?(String)
     if tags.is_a?(Array) && tags.any?
-      primary_tag_name = tags.first.strip
+      primary_tag_name = tags.first.to_s.strip
       if primary_tag_name.present?
         tag = family.tags.find_or_create_by!(name: primary_tag_name) do |t|
           t.color = "#e99537"
@@ -73,11 +74,17 @@ ActiveRecord::Base.transaction do
     rule.save!
     synced += 1
     total_matches += rule.affected_resource_count
+
+    # Enforce rule actively on matching transactions
+    mod_result = rule.apply(ignore_attribute_locks: true)
+    mod_count = mod_result.is_a?(Integer) ? mod_result : (mod_result[:modified_count] || 0)
+    total_applied += mod_count
   end
 end
 
 puts JSON.generate({
   success: true,
   synced_rules: synced,
-  total_affected_transactions: total_matches
+  total_affected_transactions: total_matches,
+  total_modified_transactions: total_applied
 })

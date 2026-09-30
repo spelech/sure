@@ -13,6 +13,8 @@ module Forensics
     def build
       date_range = if period.respond_to?(:date_range)
         period.date_range
+      elsif period.respond_to?(:start_date) && period.respond_to?(:end_date)
+        period.start_date..period.end_date
       elsif period.is_a?(Range)
         period
       else
@@ -25,11 +27,20 @@ module Forensics
         .includes(:category, :merchant, entry: :account)
 
       # 1. Inflows (negative amount = credit/income in Sure)
-      inflows = tx_scope.where("entries.amount < 0")
+      inflows = tx_scope.where("entries.amount < 0").to_a
 
       # 2. Outflows (positive amount = debit/expense in Sure, excluding non-budget kinds)
       outflows = tx_scope.where("entries.amount > 0")
-        .where.not(kind: Transaction::BUDGET_EXCLUDED_KINDS)
+        .where.not(kind: Transaction::BUDGET_EXCLUDED_KINDS).to_a
+
+      # 3. Determine top merchants across outflows to keep Sankey legible (prevent node explosion)
+      merchant_spending = Hash.new(0.0)
+      outflows.each do |tx|
+        next unless tx.merchant
+        amt = tx.entry&.amount ? tx.entry.amount.abs.to_f : 0.0
+        merchant_spending[tx.merchant.id] += amt if amt > 0.01
+      end
+      top_merchant_ids = merchant_spending.sort_by { |_, amt| -amt }.first(15).map(&:first).to_set
 
       nodes = []
       node_indices = {}
@@ -97,9 +108,10 @@ module Forensics
         category_id = category ? "cat_#{category.id}" : "cat_uncategorized"
         category_color = category&.color.presence || "var(--color-destructive)"
 
-        merchant_name = tx.merchant&.name.presence || "Other Merchants"
-        merchant_id = tx.merchant ? "merch_#{tx.merchant.id}" : "merch_other"
-        merchant_color = "var(--color-gray-500)"
+        is_top_merchant = tx.merchant && top_merchant_ids.include?(tx.merchant.id)
+        merchant_name = is_top_merchant ? tx.merchant.name : "Other Merchants"
+        merchant_id = is_top_merchant ? "merch_#{tx.merchant.id}" : "merch_other"
+        merchant_color = is_top_merchant ? "var(--color-gray-400)" : "var(--color-gray-500)"
 
         acc_idx = get_or_add_node.call(account_id, account.name, "var(--color-primary)", amt)
         cat_idx = get_or_add_node.call(category_id, category_name, category_color, amt)
@@ -154,6 +166,8 @@ module Forensics
       {
         nodes: nodes,
         links: links,
+        total_inflow: total_inflow.round(2),
+        total_outflow: total_outflow.round(2),
         currency_symbol: currency_symbol
       }
     end

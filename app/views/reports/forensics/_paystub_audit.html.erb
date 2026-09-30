@@ -97,10 +97,28 @@
                 </div>
               </td>
               <td class="py-3 px-4 text-center">
-                <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1">
-                  <%= icon("check-circle", size: "xs") %>
-                  <%= t("reports.forensics.paystub_audit.verified", default: "Verified") %>
-                </span>
+                <% case row[:status] %>
+                <% when "reconciled" %>
+                  <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1" title="<%= row[:attachment_names]&.join(', ') %>">
+                    <%= icon("check-circle", size: "xs") %>
+                    <%= t("reports.forensics.paystub_audit.reconciled", default: "Reconciled") %>
+                  </span>
+                <% when "split_only" %>
+                  <span class="bg-sky-900/30 text-sky-400 border border-sky-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1" title="Gross pay and deductions itemized">
+                    <%= icon("layers", size: "xs") %>
+                    <%= t("reports.forensics.paystub_audit.split_only", default: "Splits Only") %>
+                  </span>
+                <% when "pdf_only" %>
+                  <span class="bg-purple-900/30 text-purple-400 border border-purple-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1" title="<%= row[:attachment_names]&.join(', ') %>">
+                    <%= icon("paperclip", size: "xs") %>
+                    <%= t("reports.forensics.paystub_audit.pdf_only", default: "PDF Linked") %>
+                  </span>
+                <% else %>
+                  <span class="bg-amber-900/30 text-amber-400 border border-amber-800/40 rounded-full px-2 py-0.5 text-[10px] inline-flex items-center gap-1">
+                    <%= icon("alert-circle", size: "xs") %>
+                    <%= t("reports.forensics.paystub_audit.unattached", default: "Deposit Only") %>
+                  </span>
+                <% end %>
               </td>
               <td class="py-3 px-4 font-mono font-bold text-success text-right whitespace-nowrap privacy-sensitive">
                 +<%= currency_sym %><%= number_with_precision(row[:amount], precision: 2, delimiter: ",") %>
